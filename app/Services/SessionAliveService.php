@@ -76,7 +76,7 @@ class SessionAliveService implements ClassHasLogger
 
             asyncCall(static function () use (&$self, &$cancelPending) {
 
-                yield $self->everyCancelAcceptor;
+                yield $self->everyCancelAcceptor->promise();
 
                 $cancelPending = true;
 
