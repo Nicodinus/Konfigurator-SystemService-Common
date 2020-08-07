@@ -91,7 +91,7 @@ abstract class AbstractAliveSession extends AbstractSession
 
                     case (Utils::isImplementsClassname($packet, ActionPacketInterface::class)):
 
-                        return yield $self->handleReceivedPacket($packet);
+                        return yield $self->handleActionPacket($packet);
 
                     default:
 

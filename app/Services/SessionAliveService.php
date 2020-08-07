@@ -96,6 +96,8 @@ class SessionAliveService implements ClassHasLogger
 
             while (!$cancelPending) {
 
+                dump("yolo");
+
                 yield new Delayed(1000);
 
                 if ($fails > 3) {
@@ -104,7 +106,7 @@ class SessionAliveService implements ClassHasLogger
                     $fails = 0;
                 }
 
-                if (!empty(Promise\timeoutWithDefault($self->session->awaitAnyPacket(), $seconds * 1000, null))) {
+                if (!empty(Promise\timeoutWithDefault($self->session->awaitAnyPacket(), $self->everySeconds * 1000, null))) {
                     continue;
                 }
 
