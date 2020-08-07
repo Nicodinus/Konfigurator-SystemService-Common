@@ -64,11 +64,22 @@ class UpdaterService implements ClassHasLogger
                 /** @var Info\ResponsePacket $response */
                 $response = yield $session->awaitPacketId("info.response");
 
+                $requestGitCommitHash = $requestPacket->getField('git_commit_hash');
+                $responseGitCommitHash = $response->getField('git_commit_hash');
+
+                if ($requestGitCommitHash instanceof Promise) {
+                    $requestGitCommitHash = yield $requestGitCommitHash;
+                }
+
+                if ($responseGitCommitHash instanceof Promise) {
+                    $responseGitCommitHash = yield $responseGitCommitHash;
+                }
+
                 if ($requestPacket->getField('version') !== $response->getField('version')) {
                     return UpdaterServiceEnum::VERSION_MISMATCHED();
                 }
 
-                if (!empty($requestPacket->getField('git_commit_hash')) && $requestPacket->getField('git_commit_hash') !== $response->getField('git_commit_hash')) {
+                if (!empty($requestGitCommitHash) && $requestGitCommitHash !== $responseGitCommitHash) {
                     return UpdaterServiceEnum::VERSION_MISMATCHED();
                 }
 

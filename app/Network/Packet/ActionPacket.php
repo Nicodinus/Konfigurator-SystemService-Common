@@ -246,6 +246,10 @@ abstract class ActionPacket extends AbstractPacket implements ActionPacketInterf
             throw new \LogicException("Invalid field {$field}!");
         }
 
+        if (is_callable($this->fields[$field])) {
+            return call($this->fields[$field], $this);
+        }
+
         return $this->fields[$field];
     }
 
