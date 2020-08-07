@@ -6,11 +6,13 @@ namespace Konfigurator\SystemService\Common\Network\Packet;
 
 use Amp\Failure;
 use Amp\Promise;
+use HaydenPierce\ClassFinder\ClassFinder;
 use Konfigurator\Common\Traits\ClassSingleton;
 use Konfigurator\Network\Packet\PacketHandlerInterface;
 use Konfigurator\Network\Packet\PacketInterface;
 use Konfigurator\Network\Session\SessionInterface;
 use Konfigurator\SystemService\Common\Network\Packet\PacketHandlerInterface as InternalPacketHandlerInterface;
+use Konfigurator\SystemService\Common\Utils\Utils;
 use function Amp\call;
 
 class PacketHandler implements PacketHandlerInterface
@@ -26,9 +28,89 @@ class PacketHandler implements PacketHandlerInterface
      */
     private function __construct()
     {
-        $this->handlers = [
-            new ActionPacketHandler(),
-        ];
+        $this->locateHandlers();
+    }
+
+    /**
+     * @throws \Throwable
+     * @param array|null $classnames
+     * @return static
+     */
+    protected function locateHandlers(?array $classnames = null)
+    {
+        if (is_null($classnames)) {
+            return $this
+                ->locatePackets(get_declared_classes())
+                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Common\Network\Packet', ClassFinder::RECURSIVE_MODE))
+                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Server\Network\Packet', ClassFinder::RECURSIVE_MODE))
+                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Client\Network\Packet', ClassFinder::RECURSIVE_MODE))
+                ;
+        }
+
+        foreach ($classnames as $classname) {
+
+            if (!Utils::isImplementsClassname($classname, InternalPacketHandlerInterface::class)) {
+                continue;
+            }
+
+            $testClass = new \ReflectionClass($classname);
+            if ($testClass->isAbstract()) {
+                continue;
+            }
+
+            $this->handlers[$classname] = new $classname();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $classname
+     * @return \Konfigurator\SystemService\Common\Network\Packet\PacketHandlerInterface|null
+     */
+    public function getHandler(string $classname): ?InternalPacketHandlerInterface
+    {
+        foreach ($this->handlers as $handler) {
+            if (Utils::isImplementsClassname($handler, $classname) || Utils::compareClassname($handler, $classname)) {
+                return $handler;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param SessionInterface $session
+     * @param string $classname
+     * @param bool $isRemote
+     * @param mixed ...$args
+     * @return PacketInterface|null
+     */
+    public function createPacket(SessionInterface $session, string $classname, bool $isRemote = false, ...$args): ?PacketInterface
+    {
+        foreach ($this->handlers as $handler) {
+            if ($handler->isPacketRegistered($classname)) {
+                return $handler->createPacket($session, $classname, $isRemote, ...$args);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $id
+     * @return string|PacketInterface|null
+     */
+    public function findPacketClassById($id): ?string
+    {
+        foreach ($this->handlers as $handler) {
+            $result = $handler->findPacketClassById($id);
+            if (!empty($result)) {
+                return $result;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -36,7 +118,7 @@ class PacketHandler implements PacketHandlerInterface
      * @param string $packet
      * @return Promise<PacketInterface>
      */
-    public function handlePacket($session, string $packet): Promise
+    public function handlePacket(SessionInterface $session, string $packet): Promise
     {
         return call(static function (self $self) use ($session, $packet) {
 
@@ -82,7 +164,7 @@ class PacketHandler implements PacketHandlerInterface
      * @param PacketInterface $packet
      * @return Promise<string>
      */
-    public function preparePacket($packet): Promise
+    public function preparePacket(PacketInterface $packet): Promise
     {
         return call(static function (self &$self) use ($packet) {
 

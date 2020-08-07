@@ -119,8 +119,13 @@ class UpdaterService implements ClassHasLogger
 
                 $self->getLogger()->debug("Request update pending...");
 
+                $requestPacket = $session->findPacketClassById("updater.request");
+                if (!$requestPacket) {
+                    throw new \LogicException("Can't find updater.request packet!");
+                }
+
                 /** @var Updater\RequestPacket $packet */
-                $packet = $session->createPacket(Updater\RequestPacket::class);
+                $packet = $session->createPacket($requestPacket);
                 yield $packet->sendPacket();
 
                 /** @var Updater\ResponsePacket $response */

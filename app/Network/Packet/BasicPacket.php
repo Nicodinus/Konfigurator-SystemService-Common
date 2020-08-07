@@ -9,6 +9,14 @@ use Konfigurator\Network\Packet\AbstractPacket;
 class BasicPacket extends AbstractPacket
 {
     /**
+     * @return mixed
+     */
+    public static function getId()
+    {
+        return null;
+    }
+
+    /**
      * @param mixed $data
      * @return static
      */

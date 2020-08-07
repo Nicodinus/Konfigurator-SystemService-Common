@@ -124,6 +124,14 @@ abstract class ActionPacket extends AbstractPacket implements ActionPacketInterf
     }
 
     /**
+     * @return mixed
+     */
+    public static function getId()
+    {
+        return static::getAction();
+    }
+
+    /**
      * @param string $field
      * @return bool
      */

@@ -12,6 +12,7 @@ use Konfigurator\Network\NetworkEventDispatcher;
 use Konfigurator\Network\Packet\PacketHandlerInterface;
 use Konfigurator\Network\Packet\PacketInterface;
 use Konfigurator\Network\Session\AbstractSession;
+use Konfigurator\SystemService\Common\Network\Packet\ActionPacketHandler;
 use Konfigurator\SystemService\Common\Network\Packet\ActionPacketInterface;
 use Konfigurator\SystemService\Common\Network\Packet\Actions\FileTransfer;
 use Konfigurator\SystemService\Common\Network\Packet\PacketHandler;
@@ -104,6 +105,30 @@ abstract class AbstractAliveSession extends AbstractSession
             }
 
         }, $this, $packet);
+    }
+
+    /**
+     * @param string $action
+     * @param mixed ...$args
+     * @return ActionPacketInterface
+     */
+    public function createPacketAction(string $action, ...$args): ActionPacketInterface
+    {
+        /** @var ActionPacketHandler|null $handler */
+        $handler = PacketHandler::getInstance()->getHandler(ActionPacketHandler::class);
+        if (!$handler) {
+            throw new \LogicException("Can't find action packet handler!");
+        }
+
+        $packetClassname = $handler->getPacketClassByAction($action);
+        if (!$packetClassname) {
+            throw new \LogicException("Can't find packet action {$action}!");
+        }
+
+        /** @var ActionPacketInterface $packet */
+        $packet = $this->createPacket($packetClassname, ...$args);
+
+        return $packet;
     }
 
     /**

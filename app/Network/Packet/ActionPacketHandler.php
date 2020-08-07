@@ -33,6 +33,47 @@ class ActionPacketHandler implements PacketHandlerInterface
     }
 
     /**
+     * @param SessionInterface $session
+     * @param string $classname
+     * @param bool $isRemote
+     * @param mixed ...$args
+     * @return PacketInterface|null
+     */
+    public function createPacket(SessionInterface $session, string $classname, bool $isRemote = false, ...$args): ?PacketInterface
+    {
+        if (!$this->isPacketRegistered($classname)) {
+            return null;
+        }
+
+        return new $classname($session, $isRemote, ...$args);
+    }
+
+    /**
+     * @param mixed $id
+     * @return string|PacketInterface|null
+     */
+    public function findPacketClassById($id): ?string
+    {
+        foreach ($this->registry as $class) {
+            if ($class::getAction() === $id) {
+                return $class;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $classname
+     * @return bool
+     */
+    public function isPacketRegistered(string $classname): bool
+    {
+        return (Utils::isImplementsClassname($classname, ActionPacketInterface::class)
+            || Utils::compareClassname($classname, ActionPacketInterface::class));
+    }
+
+    /**
      * @throws \Throwable
      * @param array|null $classnames
      * @return static
@@ -111,7 +152,7 @@ class ActionPacketHandler implements PacketHandlerInterface
      * @param PacketInterface $packet
      * @return bool
      */
-    public function canTransform($packet): bool
+    public function canTransform(PacketInterface $packet): bool
     {
         return Utils::isImplementsClassname($packet, ActionPacketInterface::class);
     }
@@ -121,7 +162,7 @@ class ActionPacketHandler implements PacketHandlerInterface
      * @param array $packet
      * @return Promise<PacketInterface>
      */
-    public function handle($session, array $packet): Promise
+    public function handle(SessionInterface $session, array $packet): Promise
     {
         return call(static function (self &$self) use ($session, $packet) {
 
@@ -173,10 +214,10 @@ class ActionPacketHandler implements PacketHandlerInterface
     }
 
     /**
-     * @param ActionPacketInterface $packet
+     * @param ActionPacketInterface|PacketInterface $packet
      * @return Promise<array>
      */
-    public function transform($packet): Promise
+    public function transform(PacketInterface $packet): Promise
     {
         return call(static function () use ($packet) {
 
