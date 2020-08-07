@@ -60,7 +60,7 @@ abstract class AbstractAliveSession extends AbstractSession
 
                 switch (true)
                 {
-                    case ($packet instanceof FileTransfer\Request\MetaPacket):
+                    case (Utils::compareClassname($packet, FileTransfer\Request\MetaPacket::class)):
 
                         if (true === yield ($self->shouldAcceptFileTransfer($packet))) {
 

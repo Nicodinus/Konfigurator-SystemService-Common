@@ -16,6 +16,7 @@ use Konfigurator\Network\Session\SessionInterface;
 use Konfigurator\SystemService\Common\Network\Packet\Actions\Info;
 use Konfigurator\SystemService\Common\Network\Packet\Actions\Updater;
 use Konfigurator\SystemService\Common\Utils\Utils;
+use Psr\Log\NullLogger;
 use function Amp\call;
 use function Amp\File\filesystem;
 
@@ -36,6 +37,7 @@ class UpdaterService implements ClassHasLogger
      */
     private function __construct(string $instanceDir, Driver $fsDriver = null)
     {
+        $this->logger = new NullLogger();
         $this->instanceDir = $instanceDir;
         $this->fsDriver = $fsDriver ?? filesystem($fsDriver);
     }

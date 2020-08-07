@@ -96,8 +96,6 @@ class SessionAliveService implements ClassHasLogger
 
             while (!$cancelPending) {
 
-                dump("yolo");
-
                 yield new Delayed(1000);
 
                 if ($fails > 3) {
