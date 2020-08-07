@@ -1,5 +1,5 @@
 <?php
 
-namespace Konfigurator\SystemService;
+namespace Konfigurator\SystemService\Common;
 
 //
