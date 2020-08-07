@@ -108,30 +108,6 @@ abstract class AbstractAliveSession extends AbstractSession
     }
 
     /**
-     * @param string $action
-     * @param mixed ...$args
-     * @return ActionPacketInterface
-     */
-    public function createPacketAction(string $action, ...$args): ActionPacketInterface
-    {
-        /** @var ActionPacketHandler|null $handler */
-        $handler = PacketHandler::getInstance()->getHandler(ActionPacketHandler::class);
-        if (!$handler) {
-            throw new \LogicException("Can't find action packet handler!");
-        }
-
-        $packetClassname = $handler->getPacketClassByAction($action);
-        if (!$packetClassname) {
-            throw new \LogicException("Can't find packet action {$action}!");
-        }
-
-        /** @var ActionPacketInterface $packet */
-        $packet = $this->createPacket($packetClassname, ...$args);
-
-        return $packet;
-    }
-
-    /**
      * @param ActionPacketInterface $packet
      * @return Promise<PacketInterface|null>
      */
