@@ -62,7 +62,7 @@ class UpdaterService implements ClassHasLogger
                 yield $requestPacket->sendPacket();
 
                 /** @var Info\ResponsePacket $response */
-                $response = yield $session->awaitPacket(Info\ResponsePacket::class);
+                $response = yield $session->awaitPacketId("info.response");
 
                 if ($requestPacket->getField('version') !== $response->getField('version')) {
                     return UpdaterServiceEnum::VERSION_MISMATCHED();
@@ -134,7 +134,7 @@ class UpdaterService implements ClassHasLogger
                 yield $requestPacket->sendPacket();
 
                 /** @var Updater\ResponsePacket $response */
-                $response = yield $session->awaitPacket(Updater\ResponsePacket::class);
+                $response = yield $session->awaitPacketId("updater.response");
                 if ($response->getField('status') != true) {
                     throw new \LogicException("Update failed! " . $response->getField('message'));
                 }
@@ -190,6 +190,8 @@ class UpdaterService implements ClassHasLogger
 
                 /** @var UpdaterServiceEnum $match */
                 $match = yield $self->getInfo($session);
+
+                dump($match);
 
                 if ($match->equals(UpdaterServiceEnum::VERSION_MATCHED())) {
                     $self->getLogger()->info("There is no update available!");
