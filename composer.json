@@ -12,7 +12,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Konfigurator\\SystemService\\Common\\": "app"
+      "Konfigurator\\SystemService\\Common\\": "lib"
     },
     "files": ["app/functions.php"]
   },
