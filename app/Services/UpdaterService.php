@@ -191,8 +191,6 @@ class UpdaterService implements ClassHasLogger
                 /** @var UpdaterServiceEnum $match */
                 $match = yield $self->getInfo($session);
 
-                dump($match);
-
                 if ($match->equals(UpdaterServiceEnum::VERSION_MATCHED())) {
                     $self->getLogger()->info("There is no update available!");
                     return new Success();
