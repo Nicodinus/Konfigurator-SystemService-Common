@@ -40,10 +40,10 @@ class PacketHandler implements PacketHandlerInterface
     {
         if (is_null($classnames)) {
             return $this
-                ->locatePackets(get_declared_classes())
-                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Common\Network\Packet', ClassFinder::RECURSIVE_MODE))
-                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Server\Network\Packet', ClassFinder::RECURSIVE_MODE))
-                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Client\Network\Packet', ClassFinder::RECURSIVE_MODE))
+                ->locateHandlers(get_declared_classes())
+                ->locateHandlers(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Common\Network\Packet', ClassFinder::RECURSIVE_MODE))
+                ->locateHandlers(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Server\Network\Packet', ClassFinder::RECURSIVE_MODE))
+                ->locateHandlers(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Client\Network\Packet', ClassFinder::RECURSIVE_MODE))
                 ;
         }
 

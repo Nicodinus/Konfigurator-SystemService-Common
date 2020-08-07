@@ -12,7 +12,6 @@ use Konfigurator\Network\NetworkEventDispatcher;
 use Konfigurator\Network\Packet\PacketHandlerInterface;
 use Konfigurator\Network\Packet\PacketInterface;
 use Konfigurator\Network\Session\AbstractSession;
-use Konfigurator\SystemService\Common\Network\Packet\ActionPacketHandler;
 use Konfigurator\SystemService\Common\Network\Packet\ActionPacketInterface;
 use Konfigurator\SystemService\Common\Network\Packet\Actions\FileTransfer;
 use Konfigurator\SystemService\Common\Network\Packet\PacketHandler;

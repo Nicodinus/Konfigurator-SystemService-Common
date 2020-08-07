@@ -1289,12 +1289,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nicodinus/Konfigurator-Network.git",
-                "reference": "c97872e121f7233a613a25ae4fa94236a9f849b6"
+                "reference": "285776a01c33474c456181619d87920dace07bde"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nicodinus/Konfigurator-Network/zipball/c97872e121f7233a613a25ae4fa94236a9f849b6",
-                "reference": "c97872e121f7233a613a25ae4fa94236a9f849b6",
+                "url": "https://api.github.com/repos/Nicodinus/Konfigurator-Network/zipball/285776a01c33474c456181619d87920dace07bde",
+                "reference": "285776a01c33474c456181619d87920dace07bde",
                 "shasum": ""
             },
             "require": {
@@ -1344,7 +1344,7 @@
                 "source": "https://github.com/Nicodinus/Konfigurator-Network/tree/master",
                 "issues": "https://github.com/Nicodinus/Konfigurator-Network/issues"
             },
-            "time": "2020-08-07T18:21:30+00:00"
+            "time": "2020-08-07T18:36:23+00:00"
         },
         {
             "name": "league/uri",
