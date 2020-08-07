@@ -23,6 +23,12 @@ class SessionAliveService implements ClassHasLogger
     /** @var int */
     protected int $maxFails;
 
+    /** @var int */
+    protected int $everySeconds;
+
+    /** @var Deferred */
+    protected ?Deferred $everyCancelAcceptor;
+
 
     /**
      * SessionAliveService constructor.
@@ -33,6 +39,7 @@ class SessionAliveService implements ClassHasLogger
     {
         $this->session = $session;
         $this->maxFails = $maxFails;
+        $this->everyCancelAcceptor = null;
     }
 
     /**
@@ -51,15 +58,25 @@ class SessionAliveService implements ClassHasLogger
      */
     public function every(int $seconds): Deferred
     {
-        $defer = new Deferred();
+        if ($seconds < 1) {
+            $seconds = 1;
+        }
 
-        asyncCall(static function (self &$self, int $seconds, Promise $cancelPromise) {
+        $this->everySeconds = $seconds;
+
+        if (!empty($this->everyCancelAcceptor)) {
+            return $this->everyCancelAcceptor;
+        }
+
+        $this->everyCancelAcceptor = new Deferred();
+
+        asyncCall(static function (self &$self, int $seconds) {
 
             $cancelPending = false;
 
-            asyncCall(static function () use ($cancelPromise, &$cancelPending) {
+            asyncCall(static function () use (&$self, &$cancelPending) {
 
-                yield $cancelPromise;
+                yield $self->everyCancelAcceptor;
 
                 $cancelPending = true;
 
@@ -117,8 +134,8 @@ class SessionAliveService implements ClassHasLogger
 
             }
 
-        }, $this, $seconds, $defer->promise());
+        }, $this, $seconds);
 
-        return $defer;
+        return $this->everyCancelAcceptor;
     }
 }
