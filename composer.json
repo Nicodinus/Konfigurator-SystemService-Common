@@ -14,7 +14,7 @@
     "psr-4": {
       "Konfigurator\\SystemService\\Common\\": "lib"
     },
-    "files": ["app/functions.php"]
+    "files": ["lib/functions.php"]
   },
   "autoload-dev": {
     "psr-4": {
