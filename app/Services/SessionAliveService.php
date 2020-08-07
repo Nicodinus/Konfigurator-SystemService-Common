@@ -72,6 +72,8 @@ class SessionAliveService implements ClassHasLogger
 
         asyncCall(static function (self &$self, int $seconds) {
 
+            yield new Delayed(1000);
+
             $cancelPending = false;
 
             asyncCall(static function () use (&$self, &$cancelPending) {
