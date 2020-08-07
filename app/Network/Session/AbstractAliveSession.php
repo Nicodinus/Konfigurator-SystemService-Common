@@ -17,6 +17,7 @@ use Konfigurator\SystemService\Common\Network\Packet\Actions\FileTransfer;
 use Konfigurator\SystemService\Common\Network\Packet\PacketHandler;
 use Konfigurator\SystemService\Common\Services\FileTransferService;
 use Konfigurator\SystemService\Common\Services\SessionAliveService;
+use Konfigurator\SystemService\Common\Utils\Utils;
 use function Amp\asyncCall;
 use function Amp\call;
 
@@ -88,9 +89,13 @@ abstract class AbstractAliveSession extends AbstractSession
 
                         return null;
 
-                    default:
+                    case (Utils::isImplementsClassname($packet, ActionPacketInterface::class)):
 
                         return yield $self->handleReceivedPacket($packet);
+
+                    default:
+
+                        throw new \LogicException("Unsupported packet received!");
 
                 }
 

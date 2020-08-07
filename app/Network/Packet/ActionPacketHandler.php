@@ -42,7 +42,9 @@ class ActionPacketHandler implements PacketHandlerInterface
         if (is_null($classnames)) {
             return $this
                 ->locatePackets(get_declared_classes())
-                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Network\Packet\Actions', ClassFinder::RECURSIVE_MODE))
+                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Common\Network\Packet\Actions', ClassFinder::RECURSIVE_MODE))
+                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Server\Network\Packet\Actions', ClassFinder::RECURSIVE_MODE))
+                ->locatePackets(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Client\Network\Packet\Actions', ClassFinder::RECURSIVE_MODE))
             ;
         }
 
