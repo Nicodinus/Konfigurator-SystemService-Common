@@ -1,0 +1,115 @@
+<?php
+
+
+namespace Konfigurator\SystemService\Common\Network\Session;
+
+
+use Amp\Delayed;
+use Amp\Failure;
+use Amp\Promise;
+use Konfigurator\Network\Client\ClientNetworkHandlerInterface;
+use Konfigurator\Network\NetworkEventDispatcher;
+use Konfigurator\Network\Packet\PacketHandlerInterface;
+use Konfigurator\Network\Packet\PacketInterface;
+use Konfigurator\Network\Session\AbstractSession;
+use Konfigurator\SystemService\Common\Network\Packet\ActionPacketInterface;
+use Konfigurator\SystemService\Common\Network\Packet\Actions\FileTransfer;
+use Konfigurator\SystemService\Common\Network\Packet\PacketHandler;
+use Konfigurator\SystemService\Common\Services\FileTransferService;
+use Konfigurator\SystemService\Common\Services\SessionAliveService;
+use function Amp\asyncCall;
+use function Amp\call;
+
+abstract class AbstractAliveSession extends AbstractSession
+{
+    /** @var SessionAliveService */
+    protected SessionAliveService $aliveService;
+
+
+    /**
+     * AbstractAliveSession constructor.
+     * @param ClientNetworkHandlerInterface $networkHandler
+     * @param NetworkEventDispatcher $eventDispatcher
+     */
+    public function __construct(ClientNetworkHandlerInterface $networkHandler, NetworkEventDispatcher $eventDispatcher)
+    {
+        parent::__construct($networkHandler, $eventDispatcher);
+
+        $this->aliveService = new SessionAliveService($this);
+        $this->aliveService->every(60);
+    }
+
+    /**
+     * @return PacketHandlerInterface
+     */
+    protected function createPacketHandler(): PacketHandlerInterface
+    {
+        return PacketHandler::getInstance();
+    }
+
+    /**
+     * @param PacketInterface $packet
+     * @return Promise<PacketInterface|null>
+     */
+    protected function handleReceivedPacket(PacketInterface $packet): Promise
+    {
+        return call(static function (self &$self, PacketInterface $packet) {
+
+            try {
+
+                switch (true)
+                {
+                    case ($packet instanceof FileTransfer\Request\MetaPacket):
+
+                        if (true === yield ($self->shouldAcceptFileTransfer($packet))) {
+
+                            asyncCall(static function (self &$self) use ($packet) {
+
+                                yield new Delayed(10);
+
+                                try {
+                                    $self->getLogger()->info("Receive file pending.", [
+                                        'name' => $packet->getField('name'),
+                                    ]);
+                                    yield FileTransferService::getInstance()->receiveFile($packet);
+                                    $self->getLogger()->info("File received successfully!", [
+                                        'name' => $packet->getField('name'),
+                                    ]);
+                                } catch (\Throwable $e) {
+                                    $self->getLogger()->info("File received error!", [
+                                        'name' => $packet->getField('name'),
+                                        'error' => $e->getMessage(),
+                                    ]);
+                                }
+
+                            }, $self);
+
+                        }
+
+                        return null;
+
+                    default:
+
+                        return yield $self->handleReceivedPacket($packet);
+
+                }
+
+            } catch (\Throwable $e) {
+                return new Failure($e);
+            }
+
+        }, $this, $packet);
+    }
+
+    /**
+     * @param ActionPacketInterface $packet
+     * @return Promise<PacketInterface|null>
+     */
+    protected abstract function handleActionPacket(ActionPacketInterface $packet): Promise;
+
+    /**
+     * @param FileTransfer\Request\MetaPacket $packet
+     * @return Promise<bool>
+     */
+    protected abstract function shouldAcceptFileTransfer(FileTransfer\Request\MetaPacket $packet): Promise;
+}

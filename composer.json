@@ -1,0 +1,68 @@
+{
+  "name": "konfigurator/systemservice-common",
+  "homepage": "https://github.com/Nicodinus/Konfigurator-SystemService-Common",
+  "description": "",
+  "type": "lib",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Nicodinus",
+      "email": "nicodinus@yandex.ru"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Konfigurator\\SystemService\\Common\\": "app"
+    },
+    "files": ["app/functions.php"]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Konfigurator\\SystemService\\Common\\Test\\": "test"
+    }
+  },
+  "repositories": [
+    {
+      "type": "github",
+      "url": "https://github.com/Nicodinus/Konfigurator-Common"
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/Nicodinus/Konfigurator-Network"
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/Nicodinus/symfony-async-event-dispatcher"
+    }
+  ],
+  "require": {
+    "php": ">=7.4.2",
+    "amphp/amp": "^2.5",
+    "amphp/socket": "^1.1",
+    "amphp/byte-stream": "^1.7",
+    "amphp/parallel": "^1.4",
+    "amphp/log": "^1.1",
+    "amphp/process": "^1.1",
+    "amphp/file": "^1.0",
+    "amphp/http-client": "^4.5",
+    "ext-json": "*",
+    "haydenpierce/class-finder": "^0.4.2",
+    "ramsey/uuid": "^4.0",
+    "konfigurator/common": "dev-master",
+    "konfigurator/network": "dev-master",
+    "wapmorgan/unified-archive": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4.2"
+    }
+  },
+  "scripts": {
+    "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
