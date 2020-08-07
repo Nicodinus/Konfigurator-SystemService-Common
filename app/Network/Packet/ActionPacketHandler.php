@@ -27,9 +27,7 @@ class ActionPacketHandler implements PacketHandlerInterface
      */
     public function __construct()
     {
-        $this
-            ->locatePackets()
-        ;
+        $this->locatePackets();
     }
 
     /**
@@ -69,8 +67,7 @@ class ActionPacketHandler implements PacketHandlerInterface
      */
     public function isPacketRegistered(string $classname): bool
     {
-        return (Utils::isImplementsClassname($classname, ActionPacketInterface::class)
-            || Utils::compareClassname($classname, ActionPacketInterface::class));
+        return $this->hasPacket($classname);
     }
 
     /**
@@ -104,6 +101,10 @@ class ActionPacketHandler implements PacketHandlerInterface
                 continue;
             }
 
+            if ($this->hasPacket($classname)) {
+                throw new \LogicException("Attempt register {$classname} packet when action {$classname::getAction()} already registered!");
+            }
+
             $this->registerPacket($classname);
         }
 
@@ -118,6 +119,19 @@ class ActionPacketHandler implements PacketHandlerInterface
     {
         $this->registry[$classname::getAction()] = $classname;
         return $this;
+    }
+
+    /**
+     * @param string $classname
+     * @return bool
+     */
+    public function hasPacket(string $classname): bool
+    {
+        if (!(Utils::isImplementsClassname($classname, ActionPacketInterface::class) && Utils::compareClassname($classname, ActionPacketInterface::class))) {
+            return false;
+        }
+
+        return isset($this->registry[$classname::getAction()]);
     }
 
     /**

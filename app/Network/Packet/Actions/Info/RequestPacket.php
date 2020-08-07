@@ -4,14 +4,14 @@
 namespace Konfigurator\SystemService\Common\Network\Packet\Actions\Info;
 
 
+use Amp\Failure;
 use Amp\Promise;
 use Amp\Success;
 use Konfigurator\Network\Packet\PacketInterface;
 use Konfigurator\SystemService\Common\Network\Packet\ActionPacket;
 use Konfigurator\SystemService\Common\Network\Session\Auth\AccessLevelEnum;
-use Konfigurator\SystemService\Common\Utils\Utils;
 
-class RequestPacket extends ActionPacket
+abstract class RequestPacket extends ActionPacket
 {
     /**
      * @return string
@@ -45,7 +45,20 @@ class RequestPacket extends ActionPacket
      */
     protected function handleSuccess(): Promise
     {
-        return new Success($this->getSession()->createPacket(ResponsePacket::class));
+        try {
+
+            $responsePacket = $this->getSession()->findPacketClassById('info.response');
+            if (!$responsePacket) {
+                throw new \LogicException("Can't find info.response packet!");
+            }
+
+            $responsePacket = $this->getSession()->createPacket($responsePacket);
+
+            return new Success($responsePacket);
+
+        } catch (\Throwable $e) {
+            return new Failure($e);
+        }
     }
 
     /**
@@ -57,14 +70,24 @@ class RequestPacket extends ActionPacket
     }
 
     /**
+     * @return Promise<string|null>
+     */
+    protected abstract function getGitCommitHash(): Promise;
+
+    /**
+     * @return string|null
+     */
+    protected abstract function getAppVersion(): ?string;
+
+    /**
      * @return Promise<array>
      */
     public function transform(): Promise
     {
         $this->setFields([
-            'version' => defined('APP_VERSION') ? APP_VERSION : 'UNDEFINED',
-            'git_commit_hash' => function () {
-                return yield Utils::getGitCommitHash(defined('APP_DIRECTORY') ? APP_DIRECTORY : null);
+            'version' => $this->getAppVersion() ?: 'UNDEFINED',
+            'git_commit_hash' => function (self &$self) {
+                return yield $self->getGitCommitHash();
             },
         ]);
 

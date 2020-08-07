@@ -44,7 +44,7 @@ class PacketHandler implements PacketHandlerInterface
                 ->locateHandlers(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Common\Network\Packet', ClassFinder::RECURSIVE_MODE))
                 ->locateHandlers(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Server\Network\Packet', ClassFinder::RECURSIVE_MODE))
                 ->locateHandlers(ClassFinder::getClassesInNamespace('Konfigurator\SystemService\Client\Network\Packet', ClassFinder::RECURSIVE_MODE))
-                ;
+            ;
         }
 
         foreach ($classnames as $classname) {

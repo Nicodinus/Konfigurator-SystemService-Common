@@ -70,9 +70,7 @@ class SessionAliveService implements ClassHasLogger
 
         $this->everyCancelAcceptor = new Deferred();
 
-        asyncCall(static function (self &$self, int $seconds) {
-
-            yield new Delayed(1000);
+        asyncCall(static function (self &$self) {
 
             $cancelPending = false;
 

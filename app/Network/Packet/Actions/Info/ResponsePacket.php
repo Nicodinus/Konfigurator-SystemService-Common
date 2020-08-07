@@ -9,9 +9,8 @@ use Amp\Success;
 use Konfigurator\Network\Packet\PacketInterface;
 use Konfigurator\SystemService\Common\Network\Packet\ActionPacket;
 use Konfigurator\SystemService\Common\Network\Session\Auth\AccessLevelEnum;
-use Konfigurator\SystemService\Common\Utils\Utils;
 
-class ResponsePacket extends ActionPacket
+abstract class ResponsePacket extends ActionPacket
 {
     /**
      * @return string
@@ -57,14 +56,24 @@ class ResponsePacket extends ActionPacket
     }
 
     /**
+     * @return Promise<string|null>
+     */
+    protected abstract function getGitCommitHash(): Promise;
+
+    /**
+     * @return string|null
+     */
+    protected abstract function getAppVersion(): ?string;
+
+    /**
      * @return Promise<array>
      */
     public function transform(): Promise
     {
         $this->setFields([
-            'version' => defined('APP_VERSION') ? APP_VERSION : 'UNDEFINED',
-            'git_commit_hash' => function () {
-                return yield Utils::getGitCommitHash(defined('APP_DIRECTORY') ? APP_DIRECTORY : null);
+            'version' => $this->getAppVersion() ?: 'UNDEFINED',
+            'git_commit_hash' => function (self &$self) {
+                return yield $self->getGitCommitHash();
             },
         ]);
 

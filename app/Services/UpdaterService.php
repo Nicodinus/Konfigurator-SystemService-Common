@@ -52,18 +52,23 @@ class UpdaterService implements ClassHasLogger
 
             try {
 
-                /** @var Info\RequestPacket $packet */
-                $packet = $session->createPacket(Info\RequestPacket::class);
-                yield $packet->sendPacket();
+                $requestPacket = $session->findPacketClassById('info.request');
+                if (!$requestPacket) {
+                    throw new \LogicException("Can't find info.request packet!");
+                }
+
+                /** @var Info\RequestPacket $requestPacket */
+                $requestPacket = $session->createPacket($requestPacket);
+                yield $requestPacket->sendPacket();
 
                 /** @var Info\ResponsePacket $response */
                 $response = yield $session->awaitPacket(Info\ResponsePacket::class);
 
-                if ($packet->getField('version') !== $response->getField('version')) {
+                if ($requestPacket->getField('version') !== $response->getField('version')) {
                     return UpdaterServiceEnum::VERSION_MISMATCHED();
                 }
 
-                if (!empty($packet->getField('git_commit_hash')) && $packet->getField('git_commit_hash') !== $response->getField('git_commit_hash')) {
+                if (!empty($requestPacket->getField('git_commit_hash')) && $requestPacket->getField('git_commit_hash') !== $response->getField('git_commit_hash')) {
                     return UpdaterServiceEnum::VERSION_MISMATCHED();
                 }
 
@@ -124,9 +129,9 @@ class UpdaterService implements ClassHasLogger
                     throw new \LogicException("Can't find updater.request packet!");
                 }
 
-                /** @var Updater\RequestPacket $packet */
-                $packet = $session->createPacket($requestPacket);
-                yield $packet->sendPacket();
+                /** @var Updater\RequestPacket $requestPacket */
+                $requestPacket = $session->createPacket($requestPacket);
+                yield $requestPacket->sendPacket();
 
                 /** @var Updater\ResponsePacket $response */
                 $response = yield $session->awaitPacket(Updater\ResponsePacket::class);
@@ -185,6 +190,7 @@ class UpdaterService implements ClassHasLogger
 
                 /** @var UpdaterServiceEnum $match */
                 $match = yield $self->getInfo($session);
+
                 if ($match->equals(UpdaterServiceEnum::VERSION_MATCHED())) {
                     $self->getLogger()->info("There is no update available!");
                     return new Success();
